@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
 
-export default function middleware(req){
+export default function middleware(req: NextRequest){
     const absoluteUrl = new URL('/login',req.url).toString();
 
     // console.log(req.url,'==============',absoluteUrl);
