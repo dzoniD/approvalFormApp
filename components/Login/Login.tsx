@@ -7,7 +7,7 @@ import { type SubmitHandler, useForm } from "react-hook-form";
 // import { OtherLoginOptions } from 'components/Signin/OtherLoginOptions';
 import { type FieldsType, type FormValues } from "./SignIn";
 import { validation } from "./validation";
-
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 // import { graphql, type FragmentType, useFragment } from 'gql';
 
@@ -71,7 +71,9 @@ export const Login: FC = () => {
 
   const logIn: SubmitHandler<FormValues> = (data) => {
     console.log(data);
-    router.push("/login");
+    Cookies.set("isLoggedIn", data.email);
+
+    router.push("/");
   };
 
   return (
@@ -80,7 +82,7 @@ export const Login: FC = () => {
         <h1 className="mb-4 text-center text-lg font-bold">Log in form</h1>{" "}
         <span className="mb-5 mt-1 inline-block">
           Dont have an account?
-          <Link href={"/registration"} className="ml-1 text-blue-600">
+          <Link href={"/signin"} className="ml-1 text-blue-600">
             Sign up!
           </Link>
         </span>
