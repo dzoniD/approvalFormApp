@@ -217,10 +217,10 @@ export const SignIn: FC = () => {
           <div>
             <button
               type="submit"
-              className={`rounded py-1.5 px-5 bg-white border border-slate-300 hover:bg-bgPrimary h-11 w-full`}
+              className={`rounded py-1.5 px-5 text-cyan-100 bg-blue-500 border border-slate-300 hover:bg-bgPrimary h-11 w-full`}
               // {...restProps}
             >
-              Log in
+              Sign up
             </button>
             {/* <button
               label="Prijavite se"
