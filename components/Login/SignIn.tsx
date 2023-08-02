@@ -1,19 +1,13 @@
 "use client";
-// import { Button, InlineText, InputField, Title } from '@gigatron/ui-web/base';
-// import { GraphQLClient } from 'graphql-request';
 import Link from "next/link";
 import React, { useState, type FC, useCallback, useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-// import { OtherLoginOptions } from 'components/Signin/OtherLoginOptions';
-// import { type FieldsType, type FormValues } from 'components/Signin/Signin';
 import { validation } from "./validation";
 
 import { useRouter } from "next/navigation";
-// import { graphql, type FragmentType, useFragment } from 'gql';
-
-// import { clientClient, serverClient } from 'lib/graphql-client';
 import { EyeIcon } from "./icons/eyeIcon";
 import { EyeSlashIcon } from "./icons/eye-slash";
+import { checkEmail } from "@/utils/checkEmail";
 
 export interface FormValues {
   email: string;
@@ -63,6 +57,8 @@ export const SignIn: FC = () => {
 
   const { errors } = formState;
   const [showPassword, setShowPassword] = useState(false);
+
+  const [signinError, setSigninError] = useState('');
 
   const fields: FieldsType[] = [
     {
@@ -139,49 +135,67 @@ export const SignIn: FC = () => {
     },
   ];
 
-  const logIn: SubmitHandler<FormValues> = (data) => {
-    console.log(data);
+  
+
+  const signIn: SubmitHandler<FormValues> = async(formData) => {
+
+    const usersResponse =  await fetch("http://localhost:4000/users")
+    const dbData = await usersResponse.json()
+    const exists = checkEmail(dbData,formData)
+
+  
+
+    if(exists && exists.email){
+      return setSigninError("This user already exists. Sign up with a different email.")
+    }
+
+
+
+    let id = dbData.length + 1;
+    const postResponse = await fetch("http://localhost:4000/users", {
+            method: "POST",
+            body: JSON.stringify({
+              id:  id,
+              ...formData
+            }),
+            headers: {
+              "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+    const resData =  await postResponse.json();
+
     router.push("/login");
+
   };
 
   return (
     <>
       <div className="relative max-w-[480px] w-full rounded-md border bg-white px-7  pb-14 pt-7">
         <h1 className="mb-4 text-center text-lg font-bold">Sign up form</h1>{" "}
-        <form onSubmit={handleSubmit(logIn)}>
+        <span className="mb-5 mt-1 inline-block ">
+         Already have an account?
+          <Link href={"/login"} className="ml-1 bg-blue-500 text-cyan-50 p-2 rounded-md">
+            Log in
+          </Link>
+        </span>
+        <form onSubmit={handleSubmit(signIn)}>
           {fields.map((field, i) => {
             return (
               <div
                 key={"field" + i}
                 className="flex  max-w-[490px] w-full flex-col mb-5"
               >
-                {/* here goes Label component */}
-                {/* {label && ( */}
                 <label className="block text-left" htmlFor={field.id}>
                   {field.label}
                 </label>
-                {/* )} */}
                 <div className="relative flex grow items-center">
                   <input
                     type={field.type}
                     id={field.id}
-                    // value={field.value}
                     {...register(field.id, field.validation)}
                     placeholder={field.placeholder}
                     className={`py-2.5 pr-2.5 mt-1  text-base w-full focus-visible:outline-none h-10  pl-3 rounded-md border border-solid placeholder:text-gGray-600 bg-white  border-black/10 undefined`}
-                    // aria-describedby={ariaDescribedBy}
-                    // aria-label={ariaLabel}
-                    // disabled={disabled}
-                    // ref={ref}
-                    // {...restProps}
                   ></input>
-                  {/* <Input
-                  isError={field.isError}
-                  id={field.id}
-                  {...restProps}
-                  ref={ref}
-                  elementType={field.elementPosition === 'right' ? 'none' : elementType}
-                /> */}
                   <div
                     className={`absolute flex justify-center h-10 text-center items-center right-0`} //${position}`}
                   >
@@ -196,19 +210,6 @@ export const SignIn: FC = () => {
                   ""
                 )}
               </div>
-              // <InputField
-              //   key={field.id}
-              //   id={field.id}
-              //   type={field?.type || 'text'}
-              //   variant="normal"
-              //   placeholder={field.placeholder}
-              //   {...register(field.id, field.validation)}
-              //   isError={field.isError}
-              //   errorMessage={field.errorMessage}
-              //   aria-invalid={field.aria}
-              // >
-              //   {field?.children}
-              // </InputField>
             );
           })}
           <Link href={"/"} className="mb-5 inline-block">
@@ -218,20 +219,12 @@ export const SignIn: FC = () => {
             <button
               type="submit"
               className={`rounded py-1.5 px-5 text-cyan-100 bg-blue-500 border border-slate-300 hover:bg-bgPrimary h-11 w-full`}
-              // {...restProps}
             >
               Sign up
             </button>
-            {/* <button
-              label="Prijavite se"
-              scheme="blueSecondary"
-              variant="squared"
-              className="h-11 w-full"
-              type="submit"
-            ></button> */}
           </div>
+          <p className="text-red-500 font-semibold text-base mt-3">{signinError}</p>
         </form>
-        {/* <OtherLoginOptions /> */}
       </div>
     </>
   );

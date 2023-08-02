@@ -1,20 +1,15 @@
 "use client";
-// import { Button, InlineText, InputField, Title } from '@gigatron/ui-web/base';
-// import { GraphQLClient } from 'graphql-request';
 import Link from "next/link";
 import React, { useState, type FC, useCallback, useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-// import { OtherLoginOptions } from 'components/Signin/OtherLoginOptions';
 import { type FieldsType, type FormValues } from "./SignIn";
 import { validation } from "./validation";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { usePathname } from 'next/navigation';
-// import { graphql, type FragmentType, useFragment } from 'gql';
-
-// import { clientClient, serverClient } from 'lib/graphql-client';
 import { EyeIcon } from "./icons/eyeIcon";
 import { EyeSlashIcon } from "./icons/eye-slash";
+import { checkEmail } from "@/utils/checkEmail";
 
 interface LoginFieldsType extends Omit<FieldsType, "id"> {
   id: "email" | "password";
@@ -22,9 +17,7 @@ interface LoginFieldsType extends Omit<FieldsType, "id"> {
 
 export const Login: FC = () => {
   const router = useRouter();
-  const pathname = usePathname();
 
-  
 
   const { register, watch, formState, getValues, handleSubmit } =
     useForm<FormValues>({
@@ -37,6 +30,7 @@ export const Login: FC = () => {
 
   const { errors } = formState;
   const [showPassword, setShowPassword] = useState(false);
+  const [logInError, setLogInError] = useState('');
 
   const fields: LoginFieldsType[] = [
     {
@@ -74,17 +68,22 @@ export const Login: FC = () => {
   ];
 
   
-  const logIn: SubmitHandler<FormValues> = (data,e) => {
+  const logIn: SubmitHandler<FormValues> = async (data,e) => {
     
     e?.preventDefault()
-    console.log(data);
-    console.log(window.location.origin)
-    let t = Cookies.set("isLoggedIn", data.email);
     
-    if(t){
 
+    const response =  await fetch("http://localhost:4000/users")
+    const dbData = await response.json()
+    const exists = checkEmail(dbData,data)
+
+    if(exists && exists.email){
+      let t = Cookies.set("isLoggedIn", data.email);
       router.refresh()
+      return;
     }
+    
+    setLogInError("User doesnt exists, please Sign in first.")
 
   };
 
@@ -94,7 +93,7 @@ export const Login: FC = () => {
         <h1 className="mb-4 text-center text-lg font-bold">Log in form</h1>{" "}
         <span className="mb-5 mt-1 inline-block">
           Dont have an account?
-          <Link href={"/signin"} className="ml-1 text-blue-600">
+          <Link href={"/signin"} className="ml-1  bg-blue-500 text-cyan-50 p-2 rounded-md">
             Sign up!
           </Link>
         </span>
@@ -105,33 +104,17 @@ export const Login: FC = () => {
                 key={"field" + i}
                 className="flex  max-w-[490px] w-full flex-col mb-5"
               >
-                {/* here goes Label component */}
-                {/* {label && ( */}
                 <label className="block text-left" htmlFor={field.id}>
                   {field.label}
                 </label>
-                {/* )} */}
                 <div className="relative flex grow items-center">
                   <input
                     type={field.type}
                     id={field.id}
-                    // value={field.value}
                     {...register(field.id, field.validation)}
                     placeholder={field.placeholder}
                     className={`py-2.5 pr-2.5 mt-1  text-base w-full focus-visible:outline-none h-10  pl-3 rounded-md border border-solid placeholder:text-gGray-600 bg-white  border-black/10 undefined`}
-                    // aria-describedby={ariaDescribedBy}
-                    // aria-label={ariaLabel}
-                    // disabled={disabled}
-                    // ref={ref}
-                    // {...restProps}
                   ></input>
-                  {/* <Input
-                  isError={field.isError}
-                  id={field.id}
-                  {...restProps}
-                  ref={ref}
-                  elementType={field.elementPosition === 'right' ? 'none' : elementType}
-                /> */}
                   <div
                     className={`absolute flex justify-center h-10 text-center items-center right-0`} //${position}`}
                   >
@@ -146,19 +129,6 @@ export const Login: FC = () => {
                   ""
                 )}
               </div>
-              // <InputField
-              //   key={field.id}
-              //   id={field.id}
-              //   type={field?.type || 'text'}
-              //   variant="normal"
-              //   placeholder={field.placeholder}
-              //   {...register(field.id, field.validation)}
-              //   isError={field.isError}
-              //   errorMessage={field.errorMessage}
-              //   aria-invalid={field.aria}
-              // >
-              //   {field?.children}
-              // </InputField>
             );
           })}
           <Link href={"/"} className="mb-5 inline-block">
@@ -168,20 +138,13 @@ export const Login: FC = () => {
             <button
               type="submit"
               className={`rounded py-1.5 text-cyan-100 px-5 bg-blue-500 border border-slate-300 hover:bg-bgPrimary h-11 w-full`}
-              // {...restProps}
             >
               Log in
             </button>
-            {/* <button
-              label="Prijavite se"
-              scheme="blueSecondary"
-              variant="squared"
-              className="h-11 w-full"
-              type="submit"
-            ></button> */}
           </div>
+
+        <p className="text-red-500 font-semibold text-base mt-3">{logInError}</p>
         </form>
-        {/* <OtherLoginOptions /> */}
       </div>
     </>
   );
