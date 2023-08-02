@@ -138,25 +138,31 @@ export const Table = ({ tableHeaderColums, formId }: TableProps) => {
           {homePage && (
             <div className="p-3 w-44 flex-1 border-r-2 border-b-2  border-gray-400"></div>
           )}
-          {tableHeaderColums.map((column) => {
+          {tableHeaderColums.map((column, i) => {
             if (column === "Action") {
               return (
-                <div className="p-3 w-[220px] border-b-2 border-gray-400">
+                <div
+                  key={"action " + i}
+                  className="p-3 w-[220px] border-b-2 border-gray-400"
+                >
                   Action
                 </div>
               );
             }
             return (
-              <div className="p-3 w-44 flex-1 border-r-2 border-b-2  border-gray-400">
+              <div
+                key={"hometableheader " + i}
+                className="p-3 w-44 flex-1 border-r-2 border-b-2  border-gray-400"
+              >
                 {column}
               </div>
             );
           })}
         </div>
         {tableData &&
-          tableData.map((field) => {
+          tableData.map((field, i) => {
             return (
-              <div className="flex   ">
+              <div key={"tablecol" + i} className="flex">
                 {homePage && (
                   <div className="p-3 w-44 flex-1 border-r-2 border-b-2  border-gray-400 break-normal text-right">
                     <input
