@@ -80,7 +80,11 @@ export const Login: FC = () => {
     console.log(data);
     console.log(window.location.origin)
     let t = Cookies.set("isLoggedIn", data.email);
-    router.push(window.location.origin)
+    
+    if(t){
+
+      router.refresh()
+    }
 
   };
 
