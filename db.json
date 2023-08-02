@@ -22,7 +22,8 @@
       "id": 1,
       "username": "Nikola",
       "email": "nikola.muncan@gmail.com",
-      "password": "123456789Tt"
+      "password": "123456789Tt",
+      "super-admin": true
     },
     {
       "id": 2,
