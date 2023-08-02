@@ -5,11 +5,20 @@ import { Button } from "@/components/Button/button";
 import { Table } from "@/components/Table/table";
 
 export default function Home() {
-  console.log("-==HOME==")
+  let tableHeader = [
+    "ID",
+    "Name",
+    "Email",
+    "Phone",
+    "Form name",
+    "Form status",
+    "Action",
+  ];
+
   return (
     <main className="flex min-h-screen  flex-col items-center justify-evenly mx-5">
       HOME PAGE
-     <Table/>
+      <Table tableHeaderColums={tableHeader} />
       <Button>Log out</Button>
     </main>
   );

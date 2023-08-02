@@ -6,7 +6,6 @@ import { type FieldsType, type FormValues } from "./SignIn";
 import { validation } from "./validation";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { usePathname } from 'next/navigation';
 import { EyeIcon } from "./icons/eyeIcon";
 import { EyeSlashIcon } from "./icons/eye-slash";
 import { checkEmail } from "@/utils/checkEmail";
@@ -17,7 +16,6 @@ interface LoginFieldsType extends Omit<FieldsType, "id"> {
 
 export const Login: FC = () => {
   const router = useRouter();
-
 
   const { register, watch, formState, getValues, handleSubmit } =
     useForm<FormValues>({
@@ -30,7 +28,7 @@ export const Login: FC = () => {
 
   const { errors } = formState;
   const [showPassword, setShowPassword] = useState(false);
-  const [logInError, setLogInError] = useState('');
+  const [logInError, setLogInError] = useState("");
 
   const fields: LoginFieldsType[] = [
     {
@@ -67,24 +65,26 @@ export const Login: FC = () => {
     },
   ];
 
-  
-  const logIn: SubmitHandler<FormValues> = async (data,e) => {
-    
-    e?.preventDefault()
-    
+  const logIn: SubmitHandler<FormValues> = async (data, e) => {
+    e?.preventDefault();
 
-    const response =  await fetch("http://localhost:4000/users")
-    const dbData = await response.json()
-    const exists = checkEmail(dbData,data)
+    const response = await fetch("http://localhost:4000/users");
+    const dbData = await response.json();
+    const exists = checkEmail(dbData, data);
 
-    if(exists && exists.email){
-      let t = Cookies.set("isLoggedIn", data.email);
-      router.refresh()
+    if (exists && exists.email) {
+      let t = Cookies.set(
+        "isLoggedIn",
+        JSON.stringify({
+          username: exists.username,
+          isSuperAdmin: exists["isSuperAdmin"],
+        })
+      );
+      router.refresh();
       return;
     }
-    
-    setLogInError("User doesnt exists, please Sign in first.")
 
+    setLogInError("User doesnt exists, please Sign in first.");
   };
 
   return (
@@ -93,7 +93,10 @@ export const Login: FC = () => {
         <h1 className="mb-4 text-center text-lg font-bold">Log in form</h1>{" "}
         <span className="mb-5 mt-1 inline-block">
           Dont have an account?
-          <Link href={"/signin"} className="ml-1  bg-blue-500 text-cyan-50 p-2 rounded-md">
+          <Link
+            href={"/signin"}
+            className="ml-1  bg-blue-500 text-cyan-50 p-2 rounded-md"
+          >
             Sign up!
           </Link>
         </span>
@@ -143,7 +146,9 @@ export const Login: FC = () => {
             </button>
           </div>
 
-        <p className="text-red-500 font-semibold text-base mt-3">{logInError}</p>
+          <p className="text-red-500 font-semibold text-base mt-3">
+            {logInError}
+          </p>
         </form>
       </div>
     </>

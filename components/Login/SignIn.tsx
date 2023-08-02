@@ -14,6 +14,7 @@ export interface FormValues {
   password: string;
   username: string;
   "confirm-password": string;
+  isSuperAdmin: boolean;
 }
 
 export interface FieldsType {
@@ -21,7 +22,7 @@ export interface FieldsType {
   placeholder: string;
   label: string;
   validation: {
-    pattern: {
+    pattern?: {
       value: RegExp;
       message: string;
     };
@@ -58,7 +59,7 @@ export const SignIn: FC = () => {
   const { errors } = formState;
   const [showPassword, setShowPassword] = useState(false);
 
-  const [signinError, setSigninError] = useState('');
+  const [signinError, setSigninError] = useState("");
 
   const fields: FieldsType[] = [
     {
@@ -112,7 +113,6 @@ export const SignIn: FC = () => {
       validation: {
         ...validation.passwordValidationRequirements,
         validate: (val) => {
-          console.log(watch("password"), val);
           if (watch("password") != val) {
             return "Your passwords do no match";
           }
@@ -135,37 +135,31 @@ export const SignIn: FC = () => {
     },
   ];
 
-  
+  const signIn: SubmitHandler<FormValues> = async (formData) => {
+    const usersResponse = await fetch("http://localhost:4000/users");
+    const dbData = await usersResponse.json();
+    const exists = checkEmail(dbData, formData);
 
-  const signIn: SubmitHandler<FormValues> = async(formData) => {
-
-    const usersResponse =  await fetch("http://localhost:4000/users")
-    const dbData = await usersResponse.json()
-    const exists = checkEmail(dbData,formData)
-
-  
-
-    if(exists && exists.email){
-      return setSigninError("This user already exists. Sign up with a different email.")
+    if (exists && exists.email) {
+      return setSigninError(
+        "This user already exists. Sign up with a different email."
+      );
     }
-
-
 
     let id = dbData.length + 1;
     const postResponse = await fetch("http://localhost:4000/users", {
-            method: "POST",
-            body: JSON.stringify({
-              id:  id,
-              ...formData
-            }),
-            headers: {
-              "Content-type": "application/json; charset=UTF-8"
-            }
-        })
-    const resData =  await postResponse.json();
+      method: "POST",
+      body: JSON.stringify({
+        id: id,
+        ...formData,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const resData = await postResponse.json();
 
     router.push("/login");
-
   };
 
   return (
@@ -173,8 +167,11 @@ export const SignIn: FC = () => {
       <div className="relative max-w-[480px] w-full rounded-md border bg-white px-7  pb-14 pt-7">
         <h1 className="mb-4 text-center text-lg font-bold">Sign up form</h1>{" "}
         <span className="mb-5 mt-1 inline-block ">
-         Already have an account?
-          <Link href={"/login"} className="ml-1 bg-blue-500 text-cyan-50 p-2 rounded-md">
+          Already have an account?
+          <Link
+            href={"/login"}
+            className="ml-1 bg-blue-500 text-cyan-50 p-2 rounded-md"
+          >
             Log in
           </Link>
         </span>
@@ -223,7 +220,9 @@ export const SignIn: FC = () => {
               Sign up
             </button>
           </div>
-          <p className="text-red-500 font-semibold text-base mt-3">{signinError}</p>
+          <p className="text-red-500 font-semibold text-base mt-3">
+            {signinError}
+          </p>
         </form>
       </div>
     </>

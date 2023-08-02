@@ -8,7 +8,6 @@ export const Button = ({ children }: { children: string }) => {
     <button
       className="border p-2 rounded-md bg-black text-white"
       onClick={() => {
-        console.log("object");
         Cookies.remove("isLoggedIn");
         router.push("/login");
       }}
