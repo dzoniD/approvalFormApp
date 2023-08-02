@@ -8,20 +8,22 @@ export default function middleware(req: NextRequest){
     const homeUrl = new URL('/',req.url).toString();
 
     let loggedIn = req.cookies.get('isLoggedIn');
+    console.log('Loged in',loggedIn)
     
     // console.log(req.nextUrl.pathname,'==============',loginUrl,'------',!loggedIn);
     
         
-        if(!loggedIn && req.url.includes('/form-details-page')){
+        if(!loggedIn?.value && req.url.includes('/form-details-page')){
+            console.log('form details if')
             return NextResponse.redirect(loginUrl)
         }
 
-        if(!loggedIn && req.nextUrl.pathname =='/'){   
-            
+        if(!loggedIn?.value && req.nextUrl.pathname =='/'){   
+            console.log('/ if')
             return NextResponse.redirect(loginUrl)
         }
 
-        if(loggedIn && (req.url.includes('/login') || req.url.includes('/signin'))){
+        if(loggedIn?.value && (req.url.includes('/login') || req.url.includes('/signin'))){
             return NextResponse.redirect(homeUrl)
         }
 

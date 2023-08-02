@@ -9,6 +9,7 @@ import { type FieldsType, type FormValues } from "./SignIn";
 import { validation } from "./validation";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { usePathname } from 'next/navigation';
 // import { graphql, type FragmentType, useFragment } from 'gql';
 
 // import { clientClient, serverClient } from 'lib/graphql-client';
@@ -21,6 +22,9 @@ interface LoginFieldsType extends Omit<FieldsType, "id"> {
 
 export const Login: FC = () => {
   const router = useRouter();
+  const pathname = usePathname();
+
+  
 
   const { register, watch, formState, getValues, handleSubmit } =
     useForm<FormValues>({
@@ -69,11 +73,15 @@ export const Login: FC = () => {
     },
   ];
 
-  const logIn: SubmitHandler<FormValues> = (data) => {
+  
+  const logIn: SubmitHandler<FormValues> = (data,e) => {
+    
+    e?.preventDefault()
     console.log(data);
-    Cookies.set("isLoggedIn", data.email);
+    console.log(window.location.origin)
+    let t = Cookies.set("isLoggedIn", data.email);
+    router.push(window.location.origin)
 
-    router.push("/");
   };
 
   return (
