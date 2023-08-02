@@ -27,14 +27,15 @@ export const Table = () => {
         fetchTableData()
 
         
-    },[formData.length])
+    },[])
 
     const deleteHandler = async (id) => {
       const deleteResponse = await fetch(`http://localhost:4000/forms/${id}`,{
         method: "DELETE",
     });
-      const dbData = await deleteResponse.json()
-      console.log(dbData)
+      await deleteResponse.json()
+      let newData = formData.filter(field => field.id !== id)
+      setFormData(newData)
     }
 
     return (
